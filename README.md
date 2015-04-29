@@ -1,2 +1,2 @@
-# node-mongo-api
+# todoAPI
 A RESTful API using NodeJS and MongoDB
