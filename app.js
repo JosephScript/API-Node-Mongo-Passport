@@ -4,17 +4,24 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var stormpath = require('express-stormpath');
+var mongoose = require('mongoose');
 
 var routes = require('./routes/index');
 var todos = require('./routes/todos');
+var dashboard = require('./routes/dashboard');
 
-var mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/todoAPI', function(err) {
-  if(err) {
-    console.log('connection error', err);
-  } else {
-    console.log('connection successful');
-  }
+var mongoURI = "mongodb://localhost:27017/todoAPI";
+var MongoDB = mongoose.connect(mongoURI).connection;
+MongoDB.on('error', function(err) {
+    if(err) {
+        console.log('mongodb connection error', err);
+    } else {
+        console.log('mongodb connection successful');
+    }
+});
+MongoDB.once('open', function() {
+    console.log('mongodb connection open');
 });
 
 var app = express();
@@ -33,6 +40,13 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
 app.use('/todos', todos);
+app.use('/dashboard', dashboard);
+
+app.use(stormpath.init(app, {
+    apiKeyFile: 'apiKey.properties',
+    redirectUrl: '/dashboard'
+}));
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -64,6 +78,5 @@ app.use(function(err, req, res, next) {
     error: {}
   });
 });
-
 
 module.exports = app;
