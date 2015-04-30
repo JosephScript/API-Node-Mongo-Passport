@@ -1,39 +1,40 @@
 var express = require('express');
 var router = express.Router();
 var stormpath = require('express-stormpath');
+var ApiKey = require("../models/ApiKey.js");
 
 router.get('/', stormpath.loginRequired, function(req, res) {
 
-    console.log('User ' + req.user.email + ' just accessed the /dashboard page!');
+    var apiKeys = [];
 
-    var userKeys = [];
-
-    // check if user has any keys
-    req.user.getApiKeys(function(err, keys) {
-        if (err) throw err;
-        keys.each(function (key) {
-            userKeys.push(key);
-        });
+    res.locals.user.getApiKeys(function(err, collectionResult) {
+        if(collectionResult.items.length == 0) {
+            res.locals.user.createApiKey(function(err, apiKey) {
+                var apikey = new ApiKey(apiKey.id, apiKey.secret);
+                apiKeys.push(apiKey);
+                render(apiKeys);
+            });
+        }
+        else {
+            collectionResult.each(function(apiKey) {
+                var apikey = new ApiKey(apiKey.id, apiKey.secret);
+                apiKeys.push(apiKey);
+                if (apiKeys.length === collectionResult.items.length) {
+                    // Async... Now we're done!
+                    render(apiKeys);
+                }
+            });
+        }
     });
 
-    // if not, create one
-    if(userKeys.length == 0) {
-        req.user.createApiKey(function (err, key) {
-            if (err) throw err;
-            userKeys.push(key);
-        });
-    }
+    var render =  function(data) {
+        res.render('dashboard.ejs', {
+            username: res.locals.user.username,
+            apiKeys: data
+        })
+    };
 
-    // send the user their keys
-    res.json(userKeys);
 });
-// username - The user’s unique username (defaults to email).
-// email - The user’s unique email address.
-// givenName - The user’s first name.
-// surname - The user’s last name.
-// middleName - The user’s middle name.
-// customData - A JSON blob of custom user data. NOTE: This is a special property.
-
 console.log('dashboard loaded');
 
 module.exports = router;

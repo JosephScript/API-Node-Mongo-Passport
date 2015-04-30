@@ -38,14 +38,15 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', routes);
-app.use('/todos', todos);
-app.use('/dashboard', dashboard);
-
 app.use(stormpath.init(app, {
     apiKeyFile: 'apiKey.properties',
     redirectUrl: '/dashboard'
 }));
+
+app.use('/', routes);
+app.use('/todos', todos);
+app.use('/dashboard', dashboard);
+
 
 
 // catch 404 and forward to error handler
