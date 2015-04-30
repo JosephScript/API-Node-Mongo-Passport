@@ -1,31 +1,8 @@
 var express = require('express');
 var router = express.Router();
-var stormpath = require('express-stormpath');
-var ApiKey = require("../models/ApiKey.js");
+var User = require("../models/User.js");
 
-router.get('/', stormpath.loginRequired, function(req, res) {
-
-    var apiKeys = [];
-
-    res.locals.user.getApiKeys(function(err, collectionResult) {
-        if(collectionResult.items.length == 0) {
-            res.locals.user.createApiKey(function(err, apiKey) {
-                var apikey = new ApiKey(apiKey.id, apiKey.secret);
-                apiKeys.push(apiKey);
-                render(apiKeys);
-            });
-        }
-        else {
-            collectionResult.each(function(apiKey) {
-                var apikey = new ApiKey(apiKey.id, apiKey.secret);
-                apiKeys.push(apiKey);
-                if (apiKeys.length === collectionResult.items.length) {
-                    // Async... Now we're done!
-                    render(apiKeys);
-                }
-            });
-        }
-    });
+router.get('/', function(req, res) {
 
     var render =  function(data) {
         res.render('dashboard.ejs', {

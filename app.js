@@ -1,16 +1,19 @@
-var express = require('express');
-var path = require('path');
-var favicon = require('serve-favicon');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
-var stormpath = require('express-stormpath');
-var mongoose = require('mongoose');
+var express = require('express')
+    , path = require('path')
+    , favicon = require('serve-favicon')
+    , logger = require('morgan')
+    , cookieParser = require('cookie-parser')
+    , bodyParser = require('body-parser')
+    , passport = require('passport')
+    , localStrategy = require('passport-localapikey').Strategy
+    , mongoose = require('mongoose');
 
-var routes = require('./routes/index');
-var todos = require('./routes/todos');
-var dashboard = require('./routes/dashboard');
+var routes = require('./routes/index')
+    , todos = require('./routes/todos')
+    , dashboard = require('./routes/dashboard');
 
+
+// SET UP MONGO
 var mongoURI = "mongodb://localhost:27017/todoAPI";
 var MongoDB = mongoose.connect(mongoURI).connection;
 MongoDB.on('error', function(err) {
@@ -24,6 +27,42 @@ MongoDB.once('open', function() {
     console.log('mongodb connection open');
 });
 
+// Passport session setup.
+//   To support persistent login sessions, Passport needs to be able to
+//   serialize users into and deserialize users out of the session.  Typically,
+//   this will be as simple as storing the user ID when serializing, and finding
+//   the user by ID when deserializing.
+passport.serializeUser(function(user, done) {
+    done(null, user.id);
+});
+
+passport.deserializeUser(function(id, done) {
+    findById(id, function (err, user) {
+        done(err, user);
+    });
+});
+
+// Use the LocalStrategy within Passport.
+passport.use(new localStrategy(
+    function(apikey, done) {
+        // asynchronous verification, for effect...
+        process.nextTick(function () {
+
+            // Find the user by username.  If there is no user with the given
+            // username, or the password is not correct, set the user to `false` to
+            // indicate failure and set a flash message.  Otherwise, return the
+            // authenticated `user`.
+            findByApiKey(apikey, function(err, user) {
+                if (err) { return done(err); }
+                if (!user) { return done(null, false, { message: 'Unknown apikey : ' + apikey }); }
+                // if (user.password != password) { return done(null, false, { message: 'Invalid password' }); }
+                return done(null, user);
+            })
+        });
+    }
+));
+
+
 var app = express();
 
 // view engine setup
@@ -36,15 +75,12 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
+// Initialize Passport!  Also use passport.session() middleware, to support
+// persistent login sessions (recommended).
+app.use(passport.initialize());
+app.use(passport.session());
+
 app.use(express.static(path.join(__dirname, 'public')));
-
-app.use(stormpath.init(app, {
-    application: 'https://api.stormpath.com/v1/applications/1BUAvNdK1x77ca72vwtnQZ',
-    id: process.env.STORMPATH_API_KEY_ID,
-    secret: process.env.STORMPATH_API_KEY_SECRET,
-    redirectUrl: '/dashboard'
-}));
-
 app.use('/', routes);
 app.use('/todos', todos);
 app.use('/dashboard', dashboard);
