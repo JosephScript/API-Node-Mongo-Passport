@@ -10,7 +10,6 @@ var express = require('express')
 
 var routes = require('./routes/index')
     , todos = require('./routes/todos')
-    , dashboard = require('./routes/dashboard')
     , authenticate = require('./routes/authenticate')
     , login = require('./routes/login')
     , logout = require('./routes/logout');
@@ -31,10 +30,6 @@ MongoDB.once('open', function() {
 });
 
 // Passport session setup.
-//   To support persistent login sessions, Passport needs to be able to
-//   serialize users into and deserialize users out of the session.  Typically,
-//   this will be as simple as storing the user ID when serializing, and finding
-//   the user by ID when deserializing.
 passport.serializeUser(function(user, done) {
     done(null, user.id);
 });
@@ -130,7 +125,6 @@ app.use(passport.session());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', routes);
 app.use('/todos', todos);
-app.use('/dashboard', dashboard);
 app.use('/authenticate', authenticate);
 app.use('/login', login);
 app.use('/logout', logout);

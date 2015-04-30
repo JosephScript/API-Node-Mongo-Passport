@@ -1,0 +1,16 @@
+<% var title = 'Dashboard' %>
+<% include head.ejs %>
+<header>
+    <h1 class="text-center"> <%= user.name %>'s Dashboard</h1>
+</header>
+
+    <div class="row">
+        <div class="col col-sm-4 col-md-6 col-lg-6"><strong>Email</strong></div>
+        <div class="col col-sm-8 col-md-6 col-lg-6"> <%= user.email %></div>
+    </div>
+<div class="row">
+    <div class="col col-sm-4 col-md-6 col-lg-6"><strong>API Key</strong></div>
+    <div class="col col-sm-8 col-md-6 col-lg-6"> <%= user.apikey %></div>
+</div>
+
+<% include foot.ejs %>
