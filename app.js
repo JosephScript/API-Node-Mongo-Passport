@@ -39,8 +39,8 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(stormpath.init(app, {
-    application: 'https://api.stormpath.com/v1/applications/' + process.env.STORMPATH_API_KEY_ID,
-    secretKey: process.env.STORMPATH_API_KEY_SECRET,
+    id: process.env.STORMPATH_API_KEY_ID,
+    secret: process.env.STORMPATH_API_KEY_SECRET,
     redirectUrl: '/dashboard'
 }));
 
