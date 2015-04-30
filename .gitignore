@@ -29,8 +29,5 @@ node_modules
 # Idea files
 .idea
 
-# Secret API key file!
-apiKey.properties
-
 # OS Files
 .DS_Store
