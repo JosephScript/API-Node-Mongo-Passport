@@ -1,14 +1,10 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Dashboard</title><!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/stylesheets/style.css" >
-<body>
-    <div class="container">
-        <header>
-            <h1 class="text-center"> <%= username %>'s Dashboard</h1>
-        </header>
+<% var title = 'Dashboard' %>
+<% include head.ejs %>
+<header>
+    <h1 class="text-center"> <%= username %>'s Dashboard</h1>
+</header>
+
+<%- message %>
         <div class="row">
             <div class="col col-sm-4 col-md-6 col-lg-6"><strong>ID</strong></div>
             <div class="col col-sm-8 col-md-6 col-lg-6">KEY</div>
@@ -19,10 +15,5 @@
             <div class="col col-sm-8 col-md-6 col-lg-6"> <%= apiKeys[i].secret %></div>
         </div>
         <% } %>
-    </div>
 
-    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
-
-</body>
-</html>
+<% include foot.ejs %>

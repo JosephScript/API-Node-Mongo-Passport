@@ -1,0 +1,21 @@
+<% var title = 'Authentication Example' %>
+<% include head.ejs %>
+<header>
+    <h1 class="text-center"> Login</h1>
+</header>
+<%- message %>
+
+<form method="post" action="/">
+    <p>
+        <label for="username">Username:</label>
+        <input type="text" name="username">
+    </p>
+    <p>
+        <label for="password">Password:</label>
+        <input type="text" name="password">
+    </p>
+    <p>
+        <input type="submit" value="Login">
+    </p>
+</form>
+<% include foot.ejs %>

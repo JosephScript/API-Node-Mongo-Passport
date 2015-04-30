@@ -10,7 +10,10 @@ var express = require('express')
 
 var routes = require('./routes/index')
     , todos = require('./routes/todos')
-    , dashboard = require('./routes/dashboard');
+    , dashboard = require('./routes/dashboard')
+    , authenticate = require('./routes/authenticate')
+    , login = require('./routes/login')
+    , logout = require('./routes/logout');
 
 
 // SET UP MONGO
@@ -42,23 +45,67 @@ passport.deserializeUser(function(id, done) {
     });
 });
 
-// Use the LocalStrategy within Passport.
-passport.use(new localStrategy(
+// Use the LocalStrategy within Passport to authenticate apis
+passport.use("local-api", new localStrategy(
+    {passReqToCallback : true}, //allows us to pass back the request to the callback
     function(apikey, done) {
-        // asynchronous verification, for effect...
-        process.nextTick(function () {
-
-            // Find the user by username.  If there is no user with the given
-            // username, or the password is not correct, set the user to `false` to
-            // indicate failure and set a flash message.  Otherwise, return the
-            // authenticated `user`.
-            findByApiKey(apikey, function(err, user) {
-                if (err) { return done(err); }
-                if (!user) { return done(null, false, { message: 'Unknown apikey : ' + apikey }); }
+        funct.localAuth(apikey)
+            .then(function (user) {
+                if (!user) {
+                    return done(null, false, {message: 'Unknown apikey : ' + apikey});
+                }
                 // if (user.password != password) { return done(null, false, { message: 'Invalid password' }); }
                 return done(null, user);
             })
-        });
+            .fail(function (err){
+                    return done(err);
+            });
+    }
+));
+
+// Use the LocalStrategy within Passport to login users
+passport.use('local-login', new localStrategy(
+    {passReqToCallback : true}, //allows us to pass back the request to the callback
+    function(req, username, password, done) {
+        funct.localAuth(username, password)
+            .then(function (user) {
+                if (user) {
+                    console.log("LOGGED IN AS: " + user.username);
+                    req.session.success = 'You are successfully logged in ' + user.username + '!';
+                    done(null, user);
+                }
+                if (!user) {
+                    console.log("COULD NOT LOG IN");
+                    req.session.error = 'Could not log user in. Please try again.'; //inform user could not log them in
+                    done(null, user);
+                }
+            })
+            .fail(function (err){
+                return done(err);
+            });
+    }
+));
+// Use the LocalStrategy within Passport to register users
+passport.use('local-register', new localStrategy(
+    {passReqToCallback : true}, //allows us to pass back the request to the callback
+    function(req, username, password, done) {
+        funct.localReg(username, password)
+            .then(function (user) {
+                if (user) {
+                    console.log("REGISTERED: " + user.username);
+                    req.session.success = 'You are successfully registered and logged in ' + user.username + '!';
+                    done(null, user);
+                }
+                if (!user) {
+                    console.log("COULD NOT REGISTER");
+                    req.session.error = 'That username is already in use, please try a different one.'; //inform user could not log them in
+                    done(null, user);
+                }
+            })
+            .fail(function (err) {
+                return done(err);
+            });
+
     }
 ));
 
@@ -84,14 +131,17 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', routes);
 app.use('/todos', todos);
 app.use('/dashboard', dashboard);
+app.use('/authenticate', authenticate);
+app.use('/login', login);
+app.use('/logout', logout);
 
 app.use(express.static(__dirname + '/public'));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  var err = new Error('Not Found');
-  err.status = 404;
-  next(err);
+    var err = new Error('Not Found');
+    err.status = 404;
+    next(err);
 });
 
 // error handlers
@@ -99,23 +149,23 @@ app.use(function(req, res, next) {
 // development error handler
 // will print stacktrace
 if (app.get('env') === 'development') {
-  app.use(function(err, req, res, next) {
-    res.status(err.status || 500);
-    res.render('error', {
-      message: err.message,
-      error: err
+    app.use(function(err, req, res, next) {
+        res.status(err.status || 500);
+        res.render('error', {
+            message: err.message,
+            error: err
+        });
     });
-  });
 }
 
 // production error handler
 // no stacktraces leaked to user
 app.use(function(err, req, res, next) {
-  res.status(err.status || 500);
-  res.render('error', {
-    message: err.message,
-    error: {}
-  });
+    res.status(err.status || 500);
+    res.render('error', {
+        message: err.message,
+        error: {}
+    });
 });
 
 module.exports = app;
