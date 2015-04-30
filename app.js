@@ -47,7 +47,7 @@ app.use('/', routes);
 app.use('/todos', todos);
 app.use('/dashboard', dashboard);
 
-
+app.use(express.static(__dirname + '/public'));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
