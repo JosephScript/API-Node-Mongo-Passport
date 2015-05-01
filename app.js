@@ -9,7 +9,8 @@ var express = require('express')
     , localStrategyAPI = require('passport-localapikey').Strategy
     , mongoose = require('mongoose')
     , hat = require('hat')
-    , User = require('./models/User.js');;
+    , User = require('./models/User.js')
+    , flash = require('connect-flash');
 
 var app = express();
 
@@ -22,9 +23,23 @@ app.use(expressSession(
         resave: true
     }
 ));
+
+
+// view engine setup
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
+
+// uncomment after placing your favicon in /public
+//app.use(favicon(__dirname + '/public/favicon.ico'));
+app.use(logger('dev'));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(flash());
+// Initialize Passport!  Also use passport.session() middleware, to support
+// persistent login sessions (recommended).
 app.use(passport.initialize());
 app.use(passport.session());
-
 
 var routes = require('./routes/index')
     , todos = require('./routes/todos')
@@ -167,21 +182,7 @@ passport.use('local-register', new localStrategy({
 );
 
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
-
-// uncomment after placing your favicon in /public
-//app.use(favicon(__dirname + '/public/favicon.ico'));
-app.use(logger('dev'));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cookieParser());
-// Initialize Passport!  Also use passport.session() middleware, to support
-// persistent login sessions (recommended).
-app.use(passport.initialize());
-app.use(passport.session());
-
+// Routes
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', routes);
 app.use('/todos', todos);
@@ -189,8 +190,6 @@ app.use('/authenticate', authenticate);
 app.use('/register', register);
 app.use('/login', login);
 app.use('/logout', logout);
-
-app.use(express.static(__dirname + '/public'));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
