@@ -1,20 +1,21 @@
 /**
  * Module dependencies
  */
-var mongoose = require('mongoose'),
-    bcrypt = require('bcrypt'),
-    SALT_WORK_FACTOR = 10,
-    MAX_LOGIN_ATTEMPTS = 5,
-    LOCK_TIME = 2 * 60 * 60 * 1000;
+var mongoose = require('mongoose')
+    , bcrypt = require('bcrypt')
+    , SALT_WORK_FACTOR = 10
+    , MAX_LOGIN_ATTEMPTS = 5
+    , LOCK_TIME = 2 * 60 * 60 * 1000;
 
 /**
  * User schema
  */
 var UserSchema = new mongoose.Schema({
-    name: { type: String, required: true },
+    firstName: { type: String, required: true },
+    lastName: { type: String, required: true },
     email: { type: String, required: true, index: { unique: true } },
     password: { type: String, required: true },
-    apikey: { type: String, required: true, index: { unique: true} },
+    apiKey: { type: String, required: true, index: { unique: true} },
     loginAttempts: { type: Number, required: true, default: 0 },
     lockUntil: { type: Number }
 });
@@ -104,8 +105,8 @@ var reasons = UserSchema.statics.failedLogin = {
     MAX_ATTEMPTS: 2
 };
 
-UserSchema.statics.getAuthenticated = function(username, password, cb) {
-    this.findOne({ username: username }, function(err, user) {
+UserSchema.statics.getAuthenticated = function(email, password, cb) {
+    this.findOne({ email: email }, function(err, user) {
         if (err) return cb(err);
 
         // make sure the user exists

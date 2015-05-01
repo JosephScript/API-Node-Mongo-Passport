@@ -1,4 +1,4 @@
-<% var title = 'Authentication Example' %>
+<% var title = 'Login' %>
 <% include head.ejs %>
 <header>
     <h1 class="text-center"> Login</h1>
@@ -11,10 +11,12 @@
     </p>
     <p>
         <label for="password">Password:</label>
-        <input type="text" name="password">
+        <input type="password" name="password">
     </p>
     <p>
-        <input type="submit" value="Login">
+        <input type="submit" class="btn btn-default" value="Login" >
     </p>
+    <a href="/register" class="btn btn-default">Register</a>
+
 </form>
 <% include foot.ejs %>

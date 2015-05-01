@@ -1,0 +1,33 @@
+<% var title = 'Register' %>
+<% include head.ejs %>
+<header>
+    <h1 class="text-center">Register</h1>
+</header>
+
+<form method="post" action="/register">
+
+    <div class="row">
+        <div class="col col-sm-4 col-md-2 col-lg-2"><label for="firstName">First name:</label></div>
+        <div class="col col-sm-8 col-md-14 col-lg-14"><input type="text" name="firstName"></div>
+    </div>
+    <div class="row">
+        <div class="col col-sm-4 col-md-2 col-lg-2"><label for="lastName">Last Name:</label></div>
+        <div class="col col-sm-8 col-md-14 col-lg-14"><input type="text" name="lastName"></div>
+    </div>
+    <div class="row">
+        <div class="col col-sm-4 col-md-2 col-lg-2"><label for="email">Email Address:</label></div>
+        <div class="col col-sm-8 col-md-14 col-lg-14"><input type="email" name="email"></div>
+    </div>
+    <div class="row">
+        <div class="col col-sm-4 col-md-2 col-lg-2"><label for="password">Password:</label></div>
+        <div class="col col-sm-8 col-md-14 col-lg-14"><input type="password" name="password"></div>
+    </div>
+    <div class="row">
+        <div class="col col-sm-4 col-md-2 col-lg-2"><label for="confirm">Confirm Password:</label></div>
+        <div class="col col-sm-8 col-md-14 col-lg-14"><input type="password" name="confirm"></div>
+    </div>
+    <div>
+        <input type="submit" value="Register" class="btn btn-default">
+    </div>
+</form>
+<% include foot.ejs %>

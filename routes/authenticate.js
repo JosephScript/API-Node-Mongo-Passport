@@ -6,12 +6,13 @@ var passport = require('passport')
 /**
  * POST: Authenticate via API.
  */
-router.post('/',
-    passport.authenticate('localapikey', { failureRedirect: '/login', failureFlash: true }),
-    function(req, res) {
-        res.json({ message: "Authenticated" })
-    });
-
+router.post('/', function(req, res) {
+    passport.authenticate('local-api', {
+        failureRedirect: '/login',
+        failureFlash : true
+    })
+    res.json({ message: "Authenticated" })
+});
 
 console.log('authenticate loaded');
 
