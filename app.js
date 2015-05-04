@@ -10,12 +10,12 @@ var express = require('express')
     , mongoose = require('mongoose')
     , hat = require('hat')
     , User = require('./models/User.js')
-    , flash = require('connect-flash');
+    , flash = require('connect-flash')
+    , expressSession = require('express-session');
 
 var app = express();
 
-// Configuring Passport
-var expressSession = require('express-session');
+// Configuring Express Session
 app.use(expressSession(
     {
         secret: 'Todo-API',
@@ -23,6 +23,18 @@ app.use(expressSession(
         resave: true
     }
 ));
+
+// Initialize Passport!  Also use passport.session() middleware, to support persistent login sessions.
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Configure flash
+app.use(flash());
+app.use( function (req, res, next) {
+    res.locals.flash = req.flash();
+    res.locals.message = '';
+    next();
+});
 
 
 // view engine setup
@@ -35,11 +47,6 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(flash());
-// Initialize Passport!  Also use passport.session() middleware, to support
-// persistent login sessions (recommended).
-app.use(passport.initialize());
-app.use(passport.session());
 
 var routes = require('./routes/index')
     , todos = require('./routes/todos')

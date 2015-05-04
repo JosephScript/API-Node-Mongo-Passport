@@ -1,8 +1,31 @@
 <% include head.ejs %>
 <% var title = 'Error' %>
+<div class="alert alert-danger" role="alert">
+    <p><%= message %></p>
+    <p><%= error.status %></p>
+</div>
 
-<h2><%= message %></h2>
-<h3><%= error.status %></h3>
 <pre><%= error.stack %></pre>
 
 <% include foot.ejs %>
+
+
+
+
+<!--
+- if (flash !== null)
+- if ('undefined' !== typeof flash.error && flash.error.length)
+- each msg in flash.error
+div.error= msg
+
+- if ('undefined' !== typeof flash.warning && flash.warning.length)
+- each msg in flash.warning
+div.warning= msg
+
+- if ('undefined' !== typeof flash.info && flash.info.length)
+- each msg in flash.info
+div.info= msg
+
+- if ('undefined' !== typeof flash.success && flash.success.length)
+- each msg in flash.success
+div.success= msg-->
