@@ -25,7 +25,7 @@ var UserSchema = new mongoose.Schema({
  */
 UserSchema.pre('save', function(next){
     var user = this;
-
+    console.log('saving user!');
     // only hash the password if it has been modified (or is new)
     if (!user.isModified('password')) return next();
 
@@ -51,10 +51,12 @@ UserSchema.path('email').validate(function (email, fn) {
 
     var User = mongoose.model('User');
 
+    console.log('validating user!');
+
     // Check only when it is a new user or when email field is modified
     if (this.isNew || this.isModified('email')) {
-        var criteria = { email: email };
-        User.list({ criteria: criteria }, function (err, users) {
+        var c = { email: email };
+        User.find({ criteria: criteria }, function (err, users) {
             fn(err || users.length === 0)
         })
     } else fn(true)
@@ -64,6 +66,11 @@ UserSchema.path('email').validate(function (email, fn) {
  * Methods
  */
 UserSchema.methods.comparePassword = function(candidatePassword, cb) {
+
+    var User = mongoose.model('User');
+
+    console.log('comparing passwords!');
+
     bcrypt.compare(candidatePassword, this.password, function(err, isMatch) {
         if (err) return cb(err);
         cb(null, isMatch);
@@ -71,6 +78,9 @@ UserSchema.methods.comparePassword = function(candidatePassword, cb) {
 };
 
 UserSchema.methods.incLoginAttempts = function(cb) {
+
+    console.log('incrementing login attempts!');
+
     // if we have a previous lock that has expired, restart at 1
     if (this.lockUntil && this.lockUntil < Date.now()) {
         return this.update({
@@ -106,6 +116,9 @@ var reasons = UserSchema.statics.failedLogin = {
 };
 
 UserSchema.statics.getAuthenticated = function(email, password, cb) {
+
+    console.log('getting authenticated!');
+
     this.findOne({ email: email }, function(err, user) {
         if (err) return cb(err);
 

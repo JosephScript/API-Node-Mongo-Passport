@@ -23,7 +23,7 @@ app.set('view engine', 'ejs');
 //app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(logger('dev'));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser('secret'));
 app.use(session({
     cookie: { maxAge: 60000 },
@@ -77,7 +77,9 @@ passport.use('local-api', new localStrategyAPI(
         passReqToCallback : true
     },
     function(req, apiKey, done) {
-        // check in mongo if a user with email exists or not
+        console.log('credentials passed to passport local-api: ' + apiKey);
+
+        // check in mongo if a user with apiKey exists or not
         User.findOne(
             { 'apiKey' :  apiKey },
             function(err, user) {
@@ -88,7 +90,7 @@ passport.use('local-api', new localStrategyAPI(
                 if (!user){
                     console.log('User Not Found with apiKey '+ apikey);
                     return done(null, false,
-                        req.flash('message', 'Unknown apiKey : ' + apikey));
+                        req.flash('message', 'Unknown apiKey: ' + apikey));
                 }
 
                 // Correct API Key
@@ -99,9 +101,11 @@ passport.use('local-api', new localStrategyAPI(
 
 // Use the LocalStrategy within Passport to login users
 passport.use('local-login', new localStrategy({
-        passReqToCallback : true
+        passReqToCallback : true,
+        usernameField: 'email'
     },
     function(req, email, password, done) {
+        console.log('credentials passed to passport local-login: ' + email + ' ' + password);
         // check in mongo if a user with email exists or not
         User.findOne({ 'email' :  email },
             function(err, user) {
@@ -129,9 +133,11 @@ passport.use('local-login', new localStrategy({
 
 // Use the LocalStrategy within Passport to register users
 passport.use('local-register', new localStrategy({
-            passReqToCallback : true
+            passReqToCallback : true,
+            usernameField: 'email'
         },
         function(req, email, password, done) {
+            console.log('credentials passed to passport local-register :' + email + ' ' + password);
             findOrCreateUser = function () {
                 // find a user in Mongo with provided email
                 User.findOne({'email': email}, function (err, user) {
@@ -155,7 +161,6 @@ passport.use('local-register', new localStrategy({
                         newUser.firstName = req.params.firstName;
                         newUser.lastName = req.param.lastName;
                         newUser.apiKey = hat();
-
                         // save the user
                         newUser.save(function (err) {
                             if (err) {

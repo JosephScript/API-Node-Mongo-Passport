@@ -18,7 +18,8 @@ router.post('/',
         passport.authenticate('local-register', {
             successRedirect: '/',
             failureRedirect: '/register',
-            failureFlash : true
+            failureFlash : true,
+            badRequestMessage: 'All fields are required.'
         })(req, res, next)
     })
 ;
