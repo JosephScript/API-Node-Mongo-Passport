@@ -6,18 +6,22 @@ var passport = require('passport');
  *  GET: register
  * */
 router.get('/',
-    function(req, res) {
+    function(req, res, next) {
         res.render('register.ejs')
     });
 
 /**
  * POST: register
  */
-router.post('/', passport.authenticate('local-register', {
-    successRedirect: '/',
-    failureRedirect: '/register',
-    failureFlash : true
-}));
+router.post('/',
+    function(req, res, next) {
+        passport.authenticate('local-register', {
+            successRedirect: '/',
+            failureRedirect: '/register',
+            failureFlash : true
+        })(req, res, next)
+    })
+;
 
 
 console.log('register loaded');

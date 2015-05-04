@@ -1,41 +1,19 @@
 var express = require('express')
+    , session = require('express-session')
+    , cookieParser = require('cookie-parser')
+    , bodyParser = require('body-parser')
     , path = require('path')
     , favicon = require('serve-favicon')
     , logger = require('morgan')
-    , cookieParser = require('cookie-parser')
-    , bodyParser = require('body-parser')
     , passport = require('passport')
     , localStrategy = require('passport-local').Strategy
     , localStrategyAPI = require('passport-localapikey').Strategy
     , mongoose = require('mongoose')
     , hat = require('hat')
     , User = require('./models/User.js')
-    , flash = require('connect-flash')
-    , expressSession = require('express-session');
+    , flash = require('connect-flash');
 
 var app = express();
-
-// Configuring Express Session
-app.use(expressSession(
-    {
-        secret: 'Todo-API',
-        saveUninitialized: true,
-        resave: true
-    }
-));
-
-// Initialize Passport!  Also use passport.session() middleware, to support persistent login sessions.
-app.use(passport.initialize());
-app.use(passport.session());
-
-// Configure flash
-app.use(flash());
-app.use( function (req, res, next) {
-    res.locals.flash = req.flash();
-    res.locals.message = '';
-    next();
-});
-
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -46,14 +24,26 @@ app.set('view engine', 'ejs');
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cookieParser());
+app.use(cookieParser('secret'));
+app.use(session({
+    cookie: { maxAge: 60000 },
+    saveUninitialized: true,
+    resave: 'true',
+    secret: 'secret'
+}));
+app.use(flash());
 
-var routes = require('./routes/index')
-    , todos = require('./routes/todos')
-    , register = require('./routes/register')
-    , authenticate = require('./routes/authenticate')
-    , login = require('./routes/login')
-    , logout = require('./routes/logout');
+// Initialize Passport.
+app.use(passport.initialize());
+// Persistent login sessions.
+app.use(passport.session());
+
+// Configure flash. Requires cookie parser and session.
+app.use(flash());
+app.use(function(req, res, next) {
+    res.locals.message = req.flash();
+    next();
+});
 
 // Mongo setup
 var mongoURI = "mongodb://localhost:27017/todoAPI";
@@ -65,10 +55,10 @@ MongoDB.on('error', function(err) {
         console.log('mongodb connection successful');
     }
 });
+
 MongoDB.once('open', function() {
     console.log('mongodb connection open');
 });
-
 
 // Passport session setup
 passport.serializeUser(function(user, done) {
@@ -122,13 +112,13 @@ passport.use('local-login', new localStrategy({
                 if (!user){
                     console.log('User Not Found with email '+ email);
                     return done(null, false,
-                        req.flash('message', 'User Not found.'));
+                        req.flash('error', 'User Not found.'));
                 }
                 // User exists but wrong password, log the error
                 if (!isValidPassword(user, password)){
                     console.log('Invalid Password');
                     return done(null, false,
-                        req.flash('message', 'Invalid Password'));
+                        req.flash('error', 'Invalid Password'));
                 }
                 // User and password both match, return user from
                 // done method which will be treated like success
@@ -137,57 +127,62 @@ passport.use('local-login', new localStrategy({
         );
     }));
 
-
-
-
 // Use the LocalStrategy within Passport to register users
 passport.use('local-register', new localStrategy({
-        passReqToCallback : true
-    },
-    function(req, email, password, done) {
-        findOrCreateUser = function () {
-            // find a user in Mongo with provided email
-            User.findOne({'email': email}, function (err, user) {
-                // In case of any error return
-                if (err) {
-                    console.log('Error in SignUp: ' + err);
-                    return done(err);
-                }
-                // already exists
-                if (user) {
-                    console.log('User already exists');
-                    return done(null, false,
-                        req.flash('message', 'User Already Exists'));
-                } else {
-                    // if there is no user with that email
-                    // create the user
-                    var newUser = new User();
-                    // set the user's local credentials
-                    newUser.password = req.params.password;
-                    newUser.email = email;
-                    newUser.firstName = req.params.firstName;
-                    newUser.lastName = req.param.lastName;
-                    newUser.apiKey = hat();
+            passReqToCallback : true
+        },
+        function(req, email, password, done) {
+            findOrCreateUser = function () {
+                // find a user in Mongo with provided email
+                User.findOne({'email': email}, function (err, user) {
+                    // In case of any error return
+                    if (err) {
+                        console.log('Error in SignUp: ' + err);
+                        return done(err);
+                    }
+                    // already exists
+                    if (user) {
+                        console.log('User already exists');
+                        return done(null, false,
+                            req.flash('error', 'User Already Exists'));
+                    } else {
+                        // if there is no user with that email
+                        // create the user
+                        var newUser = new User();
+                        // set the user's local credentials
+                        newUser.password = req.params.password;
+                        newUser.email = email;
+                        newUser.firstName = req.params.firstName;
+                        newUser.lastName = req.param.lastName;
+                        newUser.apiKey = hat();
 
-                    // save the user
-                    newUser.save(function (err) {
-                        if (err) {
-                            console.log('Error in Saving user: ' + err);
-                            throw err;
-                        }
-                        console.log('User Registration succesful');
-                        return done(null, newUser);
-                    });
-                }
-            });
-        };
+                        // save the user
+                        newUser.save(function (err) {
+                            if (err) {
+                                console.log('Error in Saving user: ' + err);
+                                throw err;
+                            }
+                            console.log('User Registration succesful');
+                            return done(null, newUser);
+                        });
+                    }
+                });
+            };
 
-        // Delay the execution of findOrCreateUser and execute
-        // the method in the next tick of the event loop
-        process.nextTick(findOrCreateUser);
-    })
+            // Delay the execution of findOrCreateUser and execute
+            // the method in the next tick of the event loop
+            process.nextTick(findOrCreateUser);
+        })
 );
 
+
+// Set up routing
+var routes = require('./routes/index')
+    , todos = require('./routes/todos')
+    , register = require('./routes/register')
+    , authenticate = require('./routes/authenticate')
+    , login = require('./routes/login')
+    , logout = require('./routes/logout');
 
 // Routes
 app.use(express.static(path.join(__dirname, 'public')));

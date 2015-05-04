@@ -12,8 +12,11 @@ var isAuthenticated = function (req, res, next) {
 /**
  * GET: Redirect Homepage to login page.
  * */
-router.get('/', isAuthenticated, function(req, res){
-    res.render('index.ejs', { user: req.user });
+router.get('/', isAuthenticated, function(req, res, next){
+    res.render('index.ejs',
+    {
+        user: req.user
+    });
 });
 
 console.log('index loaded');
