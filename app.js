@@ -191,7 +191,6 @@ passport.use('local-register', new localStrategy({
 var routes = require('./routes/index')
     , todos = require('./routes/todos')
     , register = require('./routes/register')
-    , authenticate = require('./routes/authenticate')
     , login = require('./routes/login')
     , logout = require('./routes/logout');
 
@@ -199,7 +198,6 @@ var routes = require('./routes/index')
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', routes);
 app.use('/todos', todos);
-app.use('/authenticate', authenticate);
 app.use('/register', register);
 app.use('/login', login);
 app.use('/logout', logout);

@@ -1,6 +1,6 @@
-var express = require('express');
-var router = express.Router();
-var auth = require('../libs/auth');
+var express = require('express')
+, router = express.Router()
+, auth = require('../libs/auth');
 
 
 /**
