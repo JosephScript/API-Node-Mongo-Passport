@@ -1,18 +1,12 @@
 var express = require('express');
 var router = express.Router();
+var auth = require('../libs/auth');
 
-// As with any middleware it is quintessential to call next()
-// if the user is authenticated
-var isAuthenticated = function (req, res, next) {
-    if (req.isAuthenticated())
-        return next();
-    res.redirect('/login');
-};
 
 /**
  * GET: Redirect Homepage to login page.
  * */
-router.get('/', isAuthenticated, function(req, res, next){
+router.get('/', auth.IsAuthenticated, function(req, res, next){
     res.render('index.ejs',
     {
         user: req.user
