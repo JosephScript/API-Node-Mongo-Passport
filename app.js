@@ -24,12 +24,12 @@ app.set('view engine', 'ejs');
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cookieParser('secret'));
+app.use(cookieParser());
 app.use(session({
-    cookie: { maxAge: 60000 },
-    saveUninitialized: true,
-    resave: 'true',
-    secret: 'secret'
+    secret: 'secret',
+    cookie: { maxAge: 60000, secure: false },
+    resave: true,
+    saveUninitialized: false
 }));
 app.use(flash());
 
@@ -154,13 +154,15 @@ passport.use('local-register', new localStrategy({
                     } else {
                         // if there is no user with that email
                         // create the user
-                        var newUser = new User();
-                        // set the user's local credentials
-                        newUser.password = req.params.password;
-                        newUser.email = email;
-                        newUser.firstName = req.params.firstName;
-                        newUser.lastName = req.param.lastName;
-                        newUser.apiKey = hat();
+                        var newUser = new User({
+                            password: req.body.password,
+                            email: email,
+                            firstName: req.body.firstName,
+                            lastName: req.body.lastName,
+                            apiKey: hat(),
+                            created_at: Date.now()
+                        });
+
                         // save the user
                         newUser.save(function (err) {
                             if (err) {

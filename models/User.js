@@ -15,9 +15,11 @@ var UserSchema = new mongoose.Schema({
     lastName: { type: String, required: true },
     email: { type: String, required: true, index: { unique: true } },
     password: { type: String, required: true },
-    apiKey: { type: String, required: true, index: { unique: true} },
+    apiKey: { type: String, required: true, unique: true },
     loginAttempts: { type: Number, required: true, default: 0 },
-    lockUntil: { type: Number }
+    lockUntil: { type: Number },
+    created_at: Date,
+    updated_at: Date
 });
 
 /**
@@ -56,7 +58,7 @@ UserSchema.path('email').validate(function (email, fn) {
     // Check only when it is a new user or when email field is modified
     if (this.isNew || this.isModified('email')) {
         var c = { email: email };
-        User.find({ criteria: criteria }, function (err, users) {
+        User.find({ criteria: c }, function (err, users) {
             fn(err || users.length === 0)
         })
     } else fn(true)
