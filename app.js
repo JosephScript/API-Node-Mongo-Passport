@@ -77,18 +77,15 @@ passport.use('local-api', new localStrategyAPI(
         passReqToCallback : true
     },
     function(req, apiKey, done) {
-        console.log('credentials passed to passport local-api: ' + apiKey);
 
         // check in mongo if a user with apiKey exists or not
-        User.findOne(
-            { 'apiKey' :  apiKey },
+        User.findOne({ 'apiKey' :  apiKey },
             function(err, user) {
                 // In case of any error, return using the done method
                 if (err)
                     return done(err);
                 // Apikey does not exist, log error & redirect back
                 if (!user){
-                    console.log('User Not Found with apiKey '+ apikey);
                     return done(null, false,
                         req.flash('message', 'Unknown apiKey: ' + apikey));
                 }
@@ -105,32 +102,35 @@ passport.use('local-login', new localStrategy({
         usernameField: 'email'
     },
     function(req, email, password, done) {
-        console.log('credentials passed to passport local-login: ' + email + ' ' + password);
-        // check in mongo if a user with email exists or not
-        User.findOne({ 'email' :  email },
-            function(err, user) {
-                // In case of any error, return using the done method
-                if (err)
-                    return done(err);
-                // email does not exist, log error & redirect back
-                if (!user){
-                    console.log('User Not Found with email '+ email);
-                    return done(null, false,
-                        req.flash('error', 'User Not found.'));
-                }
-                // User exists but wrong password, log the error
-                user.comparePassword(password, function(er, isMatch){
-                    if (isMatch) {
-                        // done method which will be treated like success
-                        return done(null, user);
-                    }else {
-                        return done(null, false,
-                            req.flash('error', 'Invalid Password'));
-                    }
-                });
+        User.getAuthenticated(email, password, function(err, user, reason){
+            // In case of any error, return using the done method
+            if (err) throw err;
 
+            // login was successful if we have a user
+            if (user) {
+                // handle login success
+                console.log('login success');
+                return done(null, user);
             }
-        );
+
+            // otherwise we can determine why we failed
+            var reasons = User.failedLogin;
+            switch (reason) {
+                case reasons.NOT_FOUND:
+                case reasons.PASSWORD_INCORRECT:
+                    // note: these cases are usually treated the same - don't tell
+                    // the user *why* the login failed, only that it did
+                    return done(null, false,
+                        req.flash('error', 'Incorrect Email and Password.'));
+                    break;
+                case reasons.MAX_ATTEMPTS:
+                    // send email or otherwise notify user that account is
+                    // temporarily locked
+                    return done(null, false,
+                        req.flash('error', 'Account has been temporarily locked.'));
+                    break;
+            }
+        });
     }));
 
 // Use the LocalStrategy within Passport to register users
@@ -139,18 +139,15 @@ passport.use('local-register', new localStrategy({
             usernameField: 'email'
         },
         function(req, email, password, done) {
-            console.log('credentials passed to passport local-register :' + email + ' ' + password);
             findOrCreateUser = function () {
                 // find a user in Mongo with provided email
                 User.findOne({'email': email}, function (err, user) {
                     // In case of any error return
                     if (err) {
-                        console.log('Error in SignUp: ' + err);
                         return done(err);
                     }
                     // already exists
                     if (user) {
-                        console.log('User already exists');
                         return done(null, false,
                             req.flash('error', 'User Already Exists'));
                     } else {
@@ -172,11 +169,11 @@ passport.use('local-register', new localStrategy({
 
                         // save the user
                         newUser.save(function (err) {
+                            // In case of any error, return using the done method
                             if (err) {
-                                console.log('Error in Saving user: ' + err);
-                                throw err;
+                                return done(err);
                             }
-                            console.log('User Registration succesful');
+                            // User Registration succesful
                             return done(null, newUser);
                         });
                     }

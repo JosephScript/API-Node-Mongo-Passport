@@ -71,8 +71,6 @@ UserSchema.methods.comparePassword = function(candidatePassword, cb) {
 
     var User = mongoose.model('User');
 
-    console.log('comparing passwords!');
-
     bcrypt.compare(candidatePassword, this.password, function(err, isMatch) {
         if (err) return cb(err);
         cb(null, isMatch);
@@ -80,8 +78,6 @@ UserSchema.methods.comparePassword = function(candidatePassword, cb) {
 };
 
 UserSchema.methods.incLoginAttempts = function(cb) {
-
-    console.log('incrementing login attempts!');
 
     // if we have a previous lock that has expired, restart at 1
     if (this.lockUntil && this.lockUntil < Date.now()) {
@@ -118,8 +114,6 @@ var reasons = UserSchema.statics.failedLogin = {
 };
 
 UserSchema.statics.getAuthenticated = function(email, password, cb) {
-
-    console.log('getting authenticated!');
 
     this.findOne({ email: email }, function(err, user) {
         if (err) return cb(err);
