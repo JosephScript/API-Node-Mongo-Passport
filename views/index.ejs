@@ -3,7 +3,7 @@
 <% include alert.ejs %>
 
 <header>
-    <h1 class="text-center"> <%= user.name %>'s Dashboard</h1>
+    <h1 class="text-center"> <%= user.firstName %>'s Dashboard</h1>
 </header>
 
     <div class="row">
@@ -12,6 +12,6 @@
     </div>
     <div class="row">
         <div class="col col-sm-4 col-md-6 col-lg-6"><strong>API Key</strong></div>
-        <div class="col col-sm-8 col-md-6 col-lg-6"> <%= user.apikey %></div>
+        <div class="col col-sm-8 col-md-6 col-lg-6"> <%= user.apiKey %></div>
     </div>
 <% include foot.ejs %>
