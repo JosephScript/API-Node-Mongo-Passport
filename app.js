@@ -119,14 +119,16 @@ passport.use('local-login', new localStrategy({
                         req.flash('error', 'User Not found.'));
                 }
                 // User exists but wrong password, log the error
-                if (!isValidPassword(user, password)){
-                    console.log('Invalid Password');
-                    return done(null, false,
-                        req.flash('error', 'Invalid Password'));
-                }
-                // User and password both match, return user from
-                // done method which will be treated like success
-                return done(null, user);
+                user.comparePassword(password, function(er, isMatch){
+                    if (isMatch) {
+                        // done method which will be treated like success
+                        return done(null, user);
+                    }else {
+                        return done(null, false,
+                            req.flash('error', 'Invalid Password'));
+                    }
+                });
+
             }
         );
     }));
@@ -152,6 +154,11 @@ passport.use('local-register', new localStrategy({
                         return done(null, false,
                             req.flash('error', 'User Already Exists'));
                     } else {
+
+                        if (req.body.password != req.body.confirm) {
+                            done(null, false,
+                                req.flash('error', 'Passwords do not match.'));
+                        }
                         // if there is no user with that email
                         // create the user
                         var newUser = new User({

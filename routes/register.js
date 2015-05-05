@@ -7,7 +7,7 @@ var passport = require('passport');
  * */
 router.get('/',
     function(req, res, next) {
-        res.render('register.ejs')
+        res.render('register.ejs');
     });
 
 /**
@@ -20,9 +20,8 @@ router.post('/',
             failureRedirect: '/register',
             failureFlash : true,
             badRequestMessage: 'All fields are required.'
-        })(req, res, next)
-    })
-;
+        })(req, res, next);
+    });
 
 
 console.log('register loaded');
