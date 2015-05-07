@@ -8,3 +8,8 @@ Users sign up with a simple form using [Passport](http://passportjs.org/) with a
 There is also a lock-out period for a large number of failed login attempts. This is configued in the User model (both time and number of attempts are configurable).
 
 Once users have logged in they will be presented with their dashboard. The dashboard displays their API Key which they can then use to interact with the TODO API.
+
+###Credit where credit is due:
+
+Password authentication with Mongoose was influenced heavily by [dev/smash](http://devsmash.com/blog/password-authentication-with-mongoose-and-bcrypt).
+
