@@ -11,5 +11,6 @@ Once users have logged in they will be presented with their dashboard. The dashb
 
 ###Credit where credit is due:
 
-Password authentication with Mongoose was influenced heavily by [dev/smash](http://devsmash.com/blog/password-authentication-with-mongoose-and-bcrypt).
+Password authentication was influenced heavily by [dev/smash's Password authentication with Mongoose and bcrypt](http://devsmash.com/blog/password-authentication-with-mongoose-and-bcrypt).
 
+TODO API heavily influenced by [Adrian Mejia's Creating RESTful APIs With NodeJS and MongoDB](http://adrianmejia.com/blog/2014/10/01/creating-a-restful-api-tutorial-with-nodejs-and-mongodb/)
