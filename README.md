@@ -1,7 +1,9 @@
 # API-Node-Mongo-Passport
 A simple Node.js API. Users are created and stored in a local database using Mongo, and they are authenticated using Passport and Passport-LocalAPIKey.
 
-This application is a simple "TODO" list API. Users interact with the API using API keys. Users sign up with a simple form using Passport to store local username/passwords. Passwords are encrypted using BCrypt. API Keys are auto generated using Hat.
+This application is a simple "TODO" list API, and users interact with the API using API keys. 
+
+Users sign up with a simple form using [Passport](http://passportjs.org/) with a [Passport-Local](https://github.com/jaredhanson/passport-local) strategy to store username/passwords in a MongoDB via [Mongoose](https://github.com/Automattic/mongoose). Passwords are encrypted using [BCrypt](https://github.com/ncb000gt/node.bcrypt.js). API Keys are auto generated using [Hat](https://github.com/substack/node-hat). API Keys are authenticated using a [Passport-LocalAPIKey](https://github.com/cholalabs/passport-localapikey) strategy, which is also stored in the MongoDB.
 
 There is also a lock-out period for a large number of failed login attempts. This is configued in the User model (both time and number of attempts are configurable).
 
