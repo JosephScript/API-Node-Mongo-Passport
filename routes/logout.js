@@ -1,12 +1,12 @@
-var express = require('express')
-, router = express.Router();
+const express = require('express')
+const router = express.Router()
 
 router.get('/logout',
-    function(req, res, next){
-        req.logout();
-        res.redirect('/');
-});
+  function (req, res, next) {
+    req.logout()
+    res.redirect('/')
+  })
 
-console.log('logout loaded');
+console.log('logout loaded')
 
-module.exports = router;
+module.exports = router
